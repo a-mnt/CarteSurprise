@@ -1,49 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#fff8f2">
-  <title>Carte cadeau d'anniversaire 🎁</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carte cadeau d'anniversaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="confetti" aria-hidden="true"></div>
+<header>🎁 <span>Carte Cadeau d’Anniversaire</span></header>
+<main>
+  <p class="eyebrow">Une petite surprise pour toi...</p>
+  <h1>Joyeux Anniversaire !</h1>
+  <p class="subtitle">Gratte la carte pour découvrir ton cadeau 🎉</p>
 
-  <header class="topbar">
-    <div class="brand">🎁 <span>Carte Cadeau d’Anniversaire</span></div>
-  </header>
-
-  <main>
-    <section class="intro">
-      <p class="eyebrow">Une petite surprise pour toi...</p>
-      <h1>Joyeux Anniversaire !</h1>
-      <p class="subtitle">Gratte la carte pour découvrir ton cadeau 🎉</p>
-    </section>
-
-    <section class="gift-card" aria-label="Carte cadeau à gratter">
-      <div class="card-title">CARTE CADEAU</div>
-      <div class="scratch-wrap">
-        <div class="reward">
-          <img id="giftImage" src="assets/cadeau.jpg" alt="Ton cadeau">
-          <div class="reward-overlay">
-            <div class="reward-icon">🎁</div>
-            <h2>Bravo !</h2>
-            <p id="rewardText">Profite bien de ton cadeau !</p>
-          </div>
-        </div>
-        <canvas id="scratchCanvas" aria-label="Zone à gratter"></canvas>
-      </div>
-      <p class="hint">✨ Gratte avec ta souris ou ton doigt pour révéler ton cadeau</p>
-      <button id="revealButton" type="button">Révéler le cadeau</button>
-    </section>
-  </main>
-
-  <footer>Avec toute mon affection ❤️</footer>
-
-  <script src="script.js"></script>
+  <section class="card">
+    <div class="title">CARTE CADEAU</div>
+    <div class="scratch-area">
+      <img src="assets/cadeau.jpg" alt="Ton cadeau">
+      <canvas id="scratch"></canvas>
+    </div>
+    <p class="hint">✨ Gratte avec ta souris ou ton doigt</p>
+    <button id="reveal">Révéler le cadeau</button>
+  </section>
+</main>
+<footer>Profite bien de ton cadeau ! ❤️</footer>
+<script src="script.js"></script>
 </body>
 </html>
