@@ -1,19 +1,209 @@
-*{box-sizing:border-box}
-:root{--ink:#25243b;--purple:#5c557e;--gold:#c79a4b;--cream:#fff9f4}
-body{margin:0;min-height:100vh;font-family:"DM Sans",sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 20%,#f6a7b833 0 38px,transparent 39px),radial-gradient(circle at 90% 25%,#c6a9ef30 0 44px,transparent 45px),var(--cream)}
-header{text-align:center;padding:20px;border-bottom:1px solid #25243b14;background:#ffffff99;backdrop-filter:blur(8px);color:var(--purple);font-size:clamp(1.05rem,2.5vw,1.55rem);font-weight:700}
-header span{margin-left:8px}
-main{width:min(900px,calc(100% - 32px));margin:auto;padding:52px 0 48px;text-align:center}
-.eyebrow{margin:0 0 8px;color:#817b96}
-h1{margin:0;font-family:Pacifico,cursive;font-size:clamp(2.6rem,8vw,5rem);font-weight:400;line-height:1.15;color:#202943}
-.subtitle{margin:18px 0 32px;font-size:clamp(1rem,2.8vw,1.2rem)}
-.card{padding:clamp(20px,5vw,36px);border:1px solid #c79a4b59;border-radius:26px;background:#fffaf1;box-shadow:0 18px 55px #483b561f}
-.title{margin-bottom:18px;color:var(--gold);font-size:clamp(1.1rem,3vw,1.6rem);font-weight:700;letter-spacing:.16em}
-.scratch-area{position:relative;width:100%;aspect-ratio:16/9;min-height:260px;overflow:hidden;border:2px solid #d4ae65;border-radius:22px;touch-action:none;user-select:none}
-.scratch-area img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
-#scratch{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
-.hint{margin:16px 0 0;color:#777183;font-size:.95rem}
-button{margin:20px auto 0;border:0;border-radius:999px;padding:12px 20px;color:#fff;background:var(--purple);font:inherit;font-weight:700;cursor:pointer}
-button.done{opacity:.55}
-footer{text-align:center;padding:22px;border-top:1px solid #25243b14;color:#9a92ad}
-@media(max-width:600px){main{width:calc(100% - 20px);padding-top:35px}.card{padding:16px;border-radius:20px}.scratch-area{aspect-ratio:4/3}}
+* { box-sizing: border-box; }
+
+:root {
+  --cream: #fff9f4;
+  --ink: #25243b;
+  --purple: #5c557e;
+  --gold: #c79a4b;
+  --pink: #f6a7b8;
+}
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  min-height: 100vh;
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 22%, rgba(246,167,184,.18) 0 35px, transparent 36px),
+    radial-gradient(circle at 88% 27%, rgba(198,169,239,.18) 0 42px, transparent 43px),
+    radial-gradient(circle at 80% 78%, rgba(250,205,122,.18) 0 32px, transparent 33px),
+    var(--cream);
+  overflow-x: hidden;
+}
+
+.topbar {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(37,36,59,.08);
+  background: rgba(255,255,255,.58);
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  color: var(--purple);
+  font-size: clamp(1.05rem, 2.5vw, 1.55rem);
+  font-weight: 700;
+}
+
+.brand span { margin-left: 8px; }
+
+main {
+  width: min(900px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 55px 0 48px;
+}
+
+.intro { text-align: center; }
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #817b96;
+  font-weight: 500;
+}
+
+h1 {
+  margin: 0;
+  font-family: Pacifico, cursive;
+  font-size: clamp(2.6rem, 8vw, 5rem);
+  line-height: 1.15;
+  font-weight: 400;
+  color: #202943;
+}
+
+.subtitle {
+  margin: 18px 0 32px;
+  font-size: clamp(1rem, 2.8vw, 1.2rem);
+  color: #454356;
+}
+
+.gift-card {
+  padding: clamp(20px, 5vw, 36px);
+  border: 1px solid rgba(199,154,75,.35);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(199,154,75,.10) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 35%, rgba(199,154,75,.10) 0 2px, transparent 3px),
+    #fffaf1;
+  box-shadow: 0 18px 55px rgba(72,59,86,.13);
+}
+
+.card-title {
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: .16em;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.scratch-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  min-height: 260px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 2px solid #d4ae65;
+  background: #eee;
+  touch-action: none;
+}
+
+.reward, .reward img, .reward-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.reward {
+  display: grid;
+  place-items: center;
+  background: white;
+}
+
+.reward img {
+  object-fit: cover;
+}
+
+.reward-overlay {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 20px;
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(2px);
+}
+
+.reward-overlay h2 {
+  margin: 0 0 5px;
+  color: var(--purple);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+}
+
+.reward-overlay p {
+  margin: 0;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  font-weight: 500;
+}
+
+.reward-icon { font-size: 2.5rem; }
+
+#scratchCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.hint {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #777183;
+  font-size: .95rem;
+}
+
+#revealButton {
+  display: block;
+  margin: 20px auto 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 20px;
+  color: white;
+  background: var(--purple);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s, opacity .2s;
+}
+
+#revealButton:hover { transform: translateY(-2px); }
+#revealButton:active { transform: translateY(0); }
+#revealButton.done { opacity: .55; }
+
+footer {
+  padding: 22px;
+  text-align: center;
+  border-top: 1px solid rgba(37,36,59,.08);
+  color: #9a92ad;
+}
+
+@media (max-width: 600px) {
+  main { width: min(100% - 20px, 900px); padding-top: 35px; }
+  .gift-card { border-radius: 20px; padding: 16px; }
+  .scratch-wrap { aspect-ratio: 4 / 3; min-height: 250px; }
+}
+
+/* petites décorations */
+.confetti::before,
+.confetti::after {
+  content: "✦   •   ✧   🎈   •   ✦   🎉   ✧";
+  position: fixed;
+  top: 17%;
+  left: 2%;
+  color: #c3a8dc;
+  opacity: .55;
+  font-size: 1.2rem;
+  letter-spacing: 12px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.confetti::after {
+  left: auto;
+  right: 2%;
+  top: 45%;
+  color: #e9a7b4;
+}

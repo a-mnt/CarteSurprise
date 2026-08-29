@@ -1,63 +1,174 @@
-const canvas=document.getElementById("scratch");
-const area=document.querySelector(".scratch-area");
-const button=document.getElementById("reveal");
-const ctx=canvas.getContext("2d",{willReadFrequently:true});
-let drawing=false,last=null,revealed=false,checks=0;
+const canvas = document.getElementById("scratchCanvas");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
+const wrap = document.querySelector(".scratch-wrap");
+const revealButton = document.getElementById("revealButton");
 
-function init(){
-  const r=area.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);
-  canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);
-  ctx.setTransform(d,0,0,d,0,0);
-  const g=ctx.createLinearGradient(0,0,r.width,r.height);
-  g.addColorStop(0,"#bdbdbd");g.addColorStop(.22,"#777");g.addColorStop(.45,"#d2d2d2");
-  g.addColorStop(.7,"#858585");g.addColorStop(1,"#c5c5c5");
-  ctx.globalCompositeOperation="source-over";ctx.fillStyle=g;ctx.fillRect(0,0,r.width,r.height);
-  for(let i=0;i<Math.max(500,r.width*r.height/35);i++){
-    ctx.fillStyle=Math.random()>.5?"#ffffff26":"#2020201a";
-    ctx.beginPath();ctx.arc(Math.random()*r.width,Math.random()*r.height,Math.random()*1.2+.2,0,Math.PI*2);ctx.fill();
+let drawing = false;
+let lastPoint = null;
+let revealed = false;
+
+function resizeCanvas() {
+  const rect = wrap.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  canvas.style.width = rect.width + "px";
+  canvas.style.height = rect.height + "px";
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  paintCover(rect.width, rect.height);
+}
+
+function paintCover(width, height) {
+  ctx.globalCompositeOperation = "source-over";
+
+  // Base argentée
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, "#c8c8c8");
+  gradient.addColorStop(.25, "#8e8e8e");
+  gradient.addColorStop(.5, "#d8d8d8");
+  gradient.addColorStop(.75, "#909090");
+  gradient.addColorStop(1, "#c6c6c6");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Texture façon ticket à gratter
+  for (let i = 0; i < width * height / 28; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const r = Math.random() * 1.3 + .3;
+    ctx.fillStyle = Math.random() > .5
+      ? "rgba(255,255,255,.16)"
+      : "rgba(40,40,40,.10)";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  ctx.fillStyle="#fffffff2";ctx.textAlign="center";ctx.textBaseline="middle";
-  ctx.font=`700 ${Math.max(18,r.width*.034)}px "DM Sans",sans-serif`;
-  ctx.fillText("GRATTE ICI",r.width/2,r.height/2-17);
-  ctx.font=`500 ${Math.max(13,r.width*.021)}px "DM Sans",sans-serif`;
-  ctx.fillText("pour découvrir ton cadeau",r.width/2,r.height/2+18);
+
+  ctx.fillStyle = "rgba(255,255,255,.94)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `700 ${Math.max(18, width * .035)}px "DM Sans", sans-serif`;
+  ctx.fillText("GRATTE ICI", width / 2, height / 2 - 18);
+
+  ctx.font = `500 ${Math.max(13, width * .022)}px "DM Sans", sans-serif`;
+  ctx.fillText("pour découvrir ton cadeau 🎁", width / 2, height / 2 + 18);
 }
-function pos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function scratch(p){
-  if(!last)last=p;
-  ctx.globalCompositeOperation="destination-out";
-  ctx.lineWidth=Math.max(34,canvas.clientWidth*.075);ctx.lineCap="round";ctx.lineJoin="round";
-  ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();
-  ctx.beginPath();ctx.arc(p.x,p.y,ctx.lineWidth/2,0,Math.PI*2);ctx.fill();
-  last=p;if(++checks%10===0)progress();
+
+function getPoint(event) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
+  };
 }
-function progress(){
-  const w=canvas.width,h=canvas.height,data=ctx.getImageData(0,0,w,h).data;
-  let clear=0,total=0;
-  for(let y=12;y<h;y+=Math.max(12,h/25))for(let x=12;x<w;x+=Math.max(12,w/35)){
-    if(data[(y*w+x)*4+3]<80)clear++;total++;
+
+function scratch(point) {
+  if (!lastPoint) lastPoint = point;
+
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = Math.max(34, canvas.clientWidth * .065);
+
+  ctx.beginPath();
+  ctx.moveTo(lastPoint.x, lastPoint.y);
+  ctx.lineTo(point.x, point.y);
+  ctx.stroke();
+
+  // Petit rond au point de contact
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  lastPoint = point;
+  checkProgress();
+}
+
+function checkProgress() {
+  if (revealed) return;
+
+  // Analyse légère de la transparence d'une grille.
+  const w = canvas.width;
+  const h = canvas.height;
+  const data = ctx.getImageData(0, 0, w, h).data;
+  let transparent = 0;
+  const step = 12 * 4;
+
+  for (let i = 3; i < data.length; i += step) {
+    if (data[i] < 20) transparent++;
   }
-  if(clear/total>.5)reveal();
+
+  const total = Math.ceil(data.length / step);
+  if (transparent / total > 0.55) reveal();
 }
-function reveal(){
-  if(revealed)return;revealed=true;canvas.style.transition="opacity .65s";canvas.style.opacity=0;
-  button.textContent="🎉 Cadeau révélé !";button.classList.add("done");
-  setTimeout(()=>{canvas.remove();confetti()},650);
+
+function reveal() {
+  if (revealed) return;
+  revealed = true;
+
+  canvas.style.transition = "opacity .7s ease";
+  canvas.style.opacity = "0";
+  revealButton.classList.add("done");
+  revealButton.textContent = "🎉 Cadeau révélé !";
+
+  setTimeout(() => {
+    canvas.style.display = "none";
+    burstConfetti();
+  }, 700);
 }
-function confetti(){
-  ["🎉","✨","🎈","💝","⭐"].forEach((s,k)=>{
-    for(let i=0;i<7;i++){
-      const p=document.createElement("span");p.textContent=s;
-      Object.assign(p.style,{position:"fixed",left:"50vw",top:"45vh",zIndex:99,pointerEvents:"none",fontSize:`${14+Math.random()*16}px`});
-      document.body.appendChild(p);
-      const dx=(Math.random()-.5)*520,dy=-100-Math.random()*450,rot=(Math.random()-.5)*900;
-      p.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:`translate(${dx}px,${dy}px) rotate(${rot}deg)`,opacity:0}],{duration:1100+Math.random()*900,easing:"cubic-bezier(.2,.8,.3,1)"}).onfinish=()=>p.remove();
-    }
-  });
+
+function burstConfetti() {
+  for (let i = 0; i < 35; i++) {
+    const piece = document.createElement("span");
+    piece.textContent = ["🎉", "✨", "🎈", "💝", "⭐"][i % 5];
+    piece.style.position = "fixed";
+    piece.style.left = (45 + Math.random() * 10) + "vw";
+    piece.style.top = "45vh";
+    piece.style.fontSize = (14 + Math.random() * 16) + "px";
+    piece.style.zIndex = "99";
+    piece.style.pointerEvents = "none";
+    document.body.appendChild(piece);
+
+    const dx = (Math.random() - .5) * 500;
+    const dy = -100 - Math.random() * 450;
+    const rotate = (Math.random() - .5) * 900;
+
+    piece.animate(
+      [
+        { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+        { transform: `translate(${dx}px, ${dy}px) rotate(${rotate}deg)`, opacity: 0 }
+      ],
+      { duration: 1100 + Math.random() * 900, easing: "cubic-bezier(.2,.8,.3,1)" }
+    ).onfinish = () => piece.remove();
+  }
 }
-canvas.addEventListener("pointerdown",e=>{if(revealed)return;drawing=true;canvas.setPointerCapture(e.pointerId);last=pos(e);scratch(last)});
-canvas.addEventListener("pointermove",e=>{if(drawing&&!revealed)scratch(pos(e))});
-["pointerup","pointercancel","lostpointercapture"].forEach(x=>canvas.addEventListener(x,()=>{drawing=false;last=null}));
-button.addEventListener("click",reveal);
-window.addEventListener("resize",()=>{if(!revealed)init()});
-init();
+
+canvas.addEventListener("pointerdown", (event) => {
+  if (revealed) return;
+  drawing = true;
+  canvas.setPointerCapture(event.pointerId);
+  lastPoint = getPoint(event);
+  scratch(lastPoint);
+});
+
+canvas.addEventListener("pointermove", (event) => {
+  if (!drawing || revealed) return;
+  scratch(getPoint(event));
+});
+
+function stopDrawing() {
+  drawing = false;
+  lastPoint = null;
+}
+
+canvas.addEventListener("pointerup", stopDrawing);
+canvas.addEventListener("pointercancel", stopDrawing);
+canvas.addEventListener("pointerleave", stopDrawing);
+
+revealButton.addEventListener("click", reveal);
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
